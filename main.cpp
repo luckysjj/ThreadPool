@@ -45,9 +45,11 @@ ThreadPool::~ThreadPool() {
     }
     condition.notify_all();
     for (std::thread &worker : workers) {
-        worker.join();
+        if (worker.joinable()) {
+            worker.join();
+        }
     }
-}
+ }
 
 void ThreadPool::enqueue(std::function<void()> task) {
     {
@@ -88,6 +90,10 @@ int main() {
     });
     pool.enqueue([] {
         std::cout << "任务3正在执行\n";
+    });
+
+    pool.enqueue([] {
+        std::cout << "任务4正在执行\n";
     });
 
     // 主线程等待一段时间，让所有任务执行完成
